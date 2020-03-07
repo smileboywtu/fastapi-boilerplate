@@ -12,7 +12,6 @@ from fastapi import FastAPI
 from .users.handler import user_router
 
 # define application
-
 app_instance = FastAPI()
 
 # add user router

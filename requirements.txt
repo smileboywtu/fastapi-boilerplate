@@ -1,4 +1,4 @@
--i http://mirrors.aliyun.com/pypi/simple/
+-i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 
 fastapi==0.52.0
 pydantic==1.4
@@ -7,3 +7,6 @@ uvicorn
 gunicorn
 asyncpg
 aiosql
+aioredis
+msgpack
+pytest

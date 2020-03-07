@@ -23,7 +23,7 @@ class PostgresDriver(object):
         if not cls.instance:
             loop = asyncio.get_event_loop()
             cls.instance = loop.run_until_complete(cls.create_new_pg_instance(args, kwargs))
-        # make sure __init__ by invoke
+        # make sure __init__ by invoked
         return super(PostgresDriver, cls).__new__(cls)
 
     def __init__(self, *args, **kwargs):
@@ -40,7 +40,7 @@ class PostgresDriver(object):
         self.sql_path = kwargs.get("sql_path")
         self.query = aiosql.from_path(kwargs.get("sql_path"), "asyncpg", record_classes=kwargs.get("record_classes"))
 
-    async def execute_sql(self, sql_name, *args, **kwargs):
+    async def execute_sql(self, sql_name: str, *args, **kwargs):
         """
         execute sql with name
 
