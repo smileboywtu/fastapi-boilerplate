@@ -40,7 +40,7 @@ class PostgresDriver(object):
         self.sql_path = kwargs.get("sql_path")
         self.query = aiosql.from_path(kwargs.get("sql_path"), "asyncpg", record_classes=kwargs.get("record_classes"))
 
-    async def execute_sql(self, sql_name, **kwargs):
+    async def execute_sql(self, sql_name, *args, **kwargs):
         """
         execute sql with name
 
@@ -49,7 +49,7 @@ class PostgresDriver(object):
         """
         with self.conn.acquire() as connection:
             try:
-                return await attrgetter(self.query)(sql_name)(connection, **kwargs)
+                return await attrgetter(self.query)(sql_name)(connection, *args, **kwargs)
             except AttributeError:
                 raise AttributeError("sql not defined in aiosql, check the sql path: {0}".format(self.sql_path))
 
