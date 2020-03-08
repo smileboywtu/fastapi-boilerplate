@@ -13,3 +13,5 @@ pytest
 ujson
 tortoise
 python-json-logger
+Celery==4.2.1
+flower==0.9.2
