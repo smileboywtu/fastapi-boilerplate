@@ -39,6 +39,13 @@ class RedisDriver(object):
         self.conn = self.instance
 
     @classmethod
+    async def destroy(cls):
+        if cls.instance:
+            cls.instance.close()
+            await cls.instance.wait_closed()
+        cls.instance = None
+
+    @classmethod
     async def create_new_instance(cls, host, port, db, passwd, maxsize=512, minsize=256, timeout=3):
         """
         create new redis connection pool

@@ -10,3 +10,6 @@ aiosql
 aioredis
 msgpack
 pytest
+ujson
+tortoise
+python-json-logger

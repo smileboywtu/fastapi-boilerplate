@@ -40,6 +40,17 @@ class PostgresDriver(object):
         self.sql_path = kwargs.get("sql_path")
         self.query = aiosql.from_path(kwargs.get("sql_path"), "asyncpg", record_classes=kwargs.get("record_classes"))
 
+    @classmethod
+    async def destory(cls):
+        """
+        close connect pool
+
+        :return:
+        """
+        if cls.instance:
+            await cls.instance.close()
+        cls.instance = None
+
     async def execute_sql(self, sql_name: str, *args, **kwargs):
         """
         execute sql with name

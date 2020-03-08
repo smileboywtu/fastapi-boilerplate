@@ -7,7 +7,7 @@ serialization model for postgres record
 
 """
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError, validator
 
 
 # this is a json object serialization
@@ -17,3 +17,9 @@ class UserSerialization(BaseModel):
     age: int
     address: str
     mobile: str
+
+    @validator("age")
+    def validate_age(self, value):
+        if value < 0 or value > 200:
+            raise ValidationError("age is between 0 ~ 200")
+        return value

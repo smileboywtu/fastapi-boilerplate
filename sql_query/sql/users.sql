@@ -8,6 +8,7 @@ select id, username, address, age, mobile from user;
 -- record_class: User
 select id, username, address, age, mobile from user where id = :id;
 
--- name: add_new_user
+-- name: add_new_user<!
 -- Add new user
 -- record_class: User
+insert into user(username, age, mobile, address) values(?,?,?,?)

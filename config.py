@@ -23,6 +23,9 @@ WEB_APP_PORT_NUMBER = 8000
 
 # log file path
 # --------------------------------------------------------------------
+enable_access_log = True
+log_socket_host = "127.0.0.1"
+log_socket_port = 514
 
 # redis config
 # --------------------------------------------------------------------
@@ -38,3 +41,5 @@ PG_PORT = 5432
 PG_DATABASE = "gcloud"
 PG_PASSWD = "geetest"
 PG_USER = "psql_demo"
+PG_DATABASE_URL = "postgresql://{user}:{passwd}@{host}:{port}/{db}".format(user=PG_USER, passwd=PG_PASSWD, host=PG_HOST,
+                                                                           port=PG_PORT, db=PG_DATABASE)

@@ -23,3 +23,8 @@ async def init_postgres_schema():
     await pg_client.execute_sql("init_postgres_schema")
 
 
+async def create_new_user(username, age, mobile, address):
+    return await pg_client.execute_sql("add_new_user", username, age, mobile, address)
+
+
+async def get_user_detail(): pass
