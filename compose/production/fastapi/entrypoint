@@ -5,32 +5,34 @@ set -o pipefail
 set -o nounset
 
 
-mysql_ready() {
+postgres_ready() {
 python << END
 import sys
 
-import pymysql
-import pymysql.cursors
+import asyncpg
+import asyncio
 
 try:
-    connection = pymysql.connect(
-        host="${MYSQL_HOST}",
-        user="${MYSQL_USER}",
-        password="${MYSQL_PASSWORD}",
-        db="${MYSQL_DATABASE}",
-        charset="utf8mb4",
-        cursorclass=pymysql.cursors.DictCursor
-    )
-except pymysql.err.OperationalError:
+
+    await asyncpg.create_pool(
+            user=${POSTGRES_USER},
+            password=${POSTGRES_PASSWORD},
+            database=${POSTGRES_DB},
+            host=${POSTGERS_HOST},
+            port=${POSTGERS_PORT})
+except Exception:
     sys.exit(-1)
 sys.exit(0)
 
 END
 }
-until mysql_ready; do
-  >&2 echo "Waiting for MySQL to become available..."
+until postgres_ready; do
+  >&2 echo "Waiting for postgres to become available..."
   sleep 1
 done
->&2 echo "MySQL is available"
+>&2 echo "postgres is available"
+
+# init postgres db schema
+python init_postgres_schema.py
 
 exec "$@"
