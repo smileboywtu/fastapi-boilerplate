@@ -78,7 +78,7 @@ class RequestIDMiddleware(BaseHTTPMiddleware):
         super().__init__(app)
         self.mode = mode
 
-    def dispatch(
+    async def dispatch(
             self, request: Request, call_next: RequestResponseEndpoint
     ):
         with RequestIDContext() as request_id:

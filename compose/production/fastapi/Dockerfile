@@ -57,13 +57,3 @@ EXPOSE 8000
 ENTRYPOINT ["/entrypoint"]
 
 #ENTRYPOINT [ "gunicorn", "run:app_instance", "-w", "8", "-k", "uvicorn.workers.UvicornWorker" ]
-
-
-
-
-
-
-
-WORKDIR /app
-
-ENTRYPOINT ["/entrypoint"]

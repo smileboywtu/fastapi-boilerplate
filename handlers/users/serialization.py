@@ -19,7 +19,7 @@ class UserSerialization(BaseModel):
     mobile: str
 
     @validator("age")
-    def validate_age(self, value):
+    def validate_age(cls, value):
         if value < 0 or value > 200:
             raise ValidationError("age is between 0 ~ 200")
         return value

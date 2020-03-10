@@ -40,7 +40,7 @@ async def init_postgres_orm_model():
     await tortoise.Tortoise.init(db_url=PG_DATABASE_URL, modules={"models": [user_model.__name__]})
 
     # init db schema
-    tortoise.generate_schema_for_client()
+    await tortoise.Tortoise.generate_schemas()
 
     print("init orm done")
 
