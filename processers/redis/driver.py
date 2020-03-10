@@ -77,7 +77,7 @@ class RedisDriver(object):
         )
 
     def __getattr__(self, item):
-        return attrgetter(self.conn)(item)
+        return attrgetter(item)(self.conn)
 
     @staticmethod
     def dumps(value):
