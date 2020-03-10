@@ -23,23 +23,23 @@ WEB_APP_PORT_NUMBER = 8000
 
 # log file path
 # --------------------------------------------------------------------
-enable_access_log = True
+enable_access_log = False
 log_socket_host = "127.0.0.1"
 log_socket_port = 514
 
 # redis config
 # --------------------------------------------------------------------
-REDIS_HOST = "10.80.186.87"
+REDIS_HOST = "redis"  # docker network
 REDIS_PORT = 6379
 REDIS_DB = 0
-REDIS_PASSWD = "geetest456"
+REDIS_PASSWD = None
 
 # postgres database config
 # --------------------------------------------------------------------
-PG_HOST = "127.0.0.1"
+PG_HOST = "postgres"  # notice use docker with service name
 PG_PORT = 5432
-PG_DATABASE = "gcloud"
-PG_PASSWD = "geetest"
-PG_USER = "psql_demo"
+PG_DATABASE = os.environ.get("POSTGRES_DB", "false")
+PG_PASSWD = os.environ.get("POSTGRES_PASSWORD", "")
+PG_USER = os.environ.get("POSTGRES_USER", "fast")
 PG_DATABASE_URL = "postgresql://{user}:{passwd}@{host}:{port}/{db}".format(user=PG_USER, passwd=PG_PASSWD, host=PG_HOST,
                                                                            port=PG_PORT, db=PG_DATABASE)

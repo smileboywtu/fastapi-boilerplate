@@ -1,0 +1,62 @@
+version: "3"
+
+volumes:
+  production_postgres_data: {}
+  production_postgres_data_backups: {}
+
+services:
+  fastapi: &fastapi
+    build:
+      context: .
+      dockerfile: compose/production/fastapi/Dockerfile
+    image: app_production_fastapi
+    depends_on:
+      - postgres
+      - redis
+    env_file:
+      - ./.envs/.production/.fastapi
+      - ./.envs/.production/.postgres
+    ports:
+      - "0.0.0.0:8000:80"
+    restart: always
+    command: /start
+
+  postgres:
+    image: postgres:latest
+    restart: always
+    volumes:
+      - production_postgres_data:/var/lib/postgresql/data
+    env_file:
+      - .envs/.production/.postgres
+    command:
+      - "--character-set-server=utf8mb4"
+      - "--collation-server=utf8mb4_unicode_ci"
+
+  redis:
+    restart: always
+    image: redis:3.2
+
+  celeryworker:
+    <<: *fastapi
+    image: app_production_celeryworker
+    depends_on:
+      - redis
+      - postgres
+    ports: []
+    command: /start-celeryworker
+
+  celerybeat:
+    <<: *fastapi
+    image: app_production_celerybeat
+    depends_on:
+      - redis
+      - postgres
+    ports: []
+    command: /start-celerybeat
+
+  flower:
+    <<: *fastapi
+    image: app_production_flower
+    ports:
+      - "5555:5555"
+    command: /start-flower

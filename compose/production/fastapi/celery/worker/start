@@ -1,0 +1,8 @@
+#!/bin/sh
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+
+celery -A celery_app.celery_app worker -c 10 -l INFO

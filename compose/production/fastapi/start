@@ -1,0 +1,8 @@
+#!/bin/sh
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+
+gunicorn run:app_instance -w 8 -k uvicorn.workers.UvicornWorker
