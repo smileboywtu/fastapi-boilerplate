@@ -3,12 +3,19 @@ from celery import Celery
 
 import config
 
-redis_url = "redis://:{0}@{1}:{2}/{3}".format(
-    config.REDIS_PASSWD,
-    config.REDIS_HOST,
-    config.REDIS_PORT,
-    config.REDIS_DB
-)
+if config.REDIS_PASSWD:
+    redis_url = "redis://:{0}@{1}:{2}/{3}".format(
+        config.REDIS_PASSWD,
+        config.REDIS_HOST,
+        config.REDIS_PORT,
+        config.REDIS_DB
+    )
+else:
+    redis_url = "redis://{0}:{1}/{2}".format(
+        config.REDIS_HOST,
+        config.REDIS_PORT,
+        config.REDIS_DB
+    )
 
 celery_app = Celery(
     broker=redis_url,

@@ -8,32 +8,39 @@ handlers
 """
 
 import traceback
-from functools import partial
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.requests import Request
 from pydantic import ValidationError
+from starlette.applications import Starlette
 from tortoise.contrib.starlette import register_tortoise
 
 import config
 from handlers.middlware import RequestIDMiddleware, AccessLogMiddleware
 from handlers.tools import GeneralJSONResponse
-from processers.postgres.driver import PostgresDriver
-from processers.redis.driver import RedisDriver
+from processers.postgres.driver import register_postgres
+from processers.redis.driver import register_redis
 from tasks.health import check_redis, check_postgres
 from utils.logs import config_socket_logger, access_log_format
 from .users.handler import user_router
-
-# start up task
-check_redis_func = partial(check_redis, config.REDIS_HOST, config.REDIS_PORT)
-check_postgres_func = partial(check_postgres, config.PG_HOST, config.PG_PORT)
 
 # config logger
 access_logger_name = "fastapi.access"
 access_logger = config_socket_logger(access_logger_name, access_log_format, "INFO",
                                      socket_host=config.log_socket_host,
                                      socket_port=config.log_socket_port)
+
+
+def register_health(
+        app: Starlette
+) -> None:
+    @app.on_event("startup")
+    async def init_check() -> None:  # pylint: disable=W0612
+        code, msg = await check_redis(config.REDIS_HOST, config.REDIS_PORT)
+        assert code == 0, msg
+        code, msg = await check_postgres(config.PG_HOST, config.PG_PORT)
+        assert code == 0, msg
 
 
 # general exception
@@ -58,20 +65,15 @@ exception_handlers = {
 }
 
 # define application
-app_instance = FastAPI(
-    on_startup=[
-        check_redis_func,
-        check_postgres_func
-    ],
-    on_shutdown=[
-        RedisDriver.destroy,
-        PostgresDriver.destory
-    ],
-    exception_handlers=exception_handlers
-)
+app_instance = FastAPI(exception_handlers=exception_handlers)
 
 # init postgres connection
 register_tortoise(app=app_instance, db_url=config.PG_DATABASE_URL, modules={"models": ["handlers.users.models"]})
+register_health(app=app_instance)
+register_postgres(app=app_instance, user=config.PG_USER, host=config.PG_HOST, port=config.PG_PORT,
+                  db=config.PG_DATABASE, password=config.PG_PASSWD)
+register_redis(app=app_instance, host=config.REDIS_HOST, port=config.REDIS_PORT, db=config.REDIS_DB,
+               password=config.REDIS_PASSWD)
 
 # add middleware
 # middleware execute from top down, first add execute firstly

@@ -11,6 +11,24 @@ import asyncio
 from operator import attrgetter
 
 import asyncpg
+from starlette.applications import Starlette
+
+
+def register_postgres(
+        app: Starlette,
+        host: str,
+        port: int,
+        db: int,
+        user: str,
+        password: str
+) -> None:
+    @app.on_event("startup")
+    async def init_redis() -> None:  # pylint: disable=W0612
+        await PostgresDriver.create_new_pg_instance(host, port, user, db, password)
+
+    @app.on_event("shutdown")
+    async def close_redis() -> None:  # pylint: disable=W0612
+        await PostgresDriver.destroy()
 
 
 class PostgresDriver(object):
@@ -18,15 +36,15 @@ class PostgresDriver(object):
 
     instance = None
 
-    def __new__(cls, *args, **kwargs):
-        if not cls.instance:
-            loop = asyncio.get_event_loop()
-            cls.instance = loop.run_until_complete(
-                cls.create_new_pg_instance(host=kwargs.get("host"), port=kwargs.get("port", 5432),
-                                           user=kwargs.get("user", "postgres"), database=kwargs.get("database"),
-                                           password=kwargs.get("password")))
-        # make sure __init__ by invoked
-        return super(PostgresDriver, cls).__new__(cls)
+    # def __new__(cls, *args, **kwargs):
+    #     if not cls.instance:
+    #         loop = asyncio.get_event_loop()
+    #         cls.instance = loop.run_until_complete(
+    #             cls.create_new_pg_instance(host=kwargs.get("host"), port=kwargs.get("port", 5432),
+    #                                        user=kwargs.get("user", "postgres"), database=kwargs.get("database"),
+    #                                        password=kwargs.get("password")))
+    #     # make sure __init__ by invoked
+    #     return super(PostgresDriver, cls).__new__(cls)
 
     def __init__(self, *args, **kwargs):
         """
@@ -75,12 +93,9 @@ class PostgresDriver(object):
         :param kwargs:
         :return:
         """
-        return await asyncpg.create_pool(
+        cls.instance = await asyncpg.create_pool(
             user=user,
             password=password,
             database=database,
             host=host,
             port=port)
-
-
-pg_client = PostgresDriver(user="aaa", host=12, port=333, database=44, password=55)

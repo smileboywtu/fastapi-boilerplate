@@ -47,7 +47,7 @@ we choose `wrk` as a load test tool. it very simple and fast. see more detail in
 
 ## with postgres sql
 
-run test 4 threads 300 concurrency:
+run test 4 threads 300 concurrency with postgres read:
 
 ```shell
 ./wrk -t 4 -c 300 -d10s http://127.0.0.1:8000/api/v1/user/list
@@ -59,6 +59,34 @@ Running 10s test @ http://127.0.0.1:8000/api/v1/user/list
   48659 requests in 10.10s, 11.09MB read
 Requests/sec:   4819.52
 Transfer/sec:      1.10MB
+```
+
+run test 4 threads 300 concurrency with redis write:
+```shell
+./wrk -t 4 -c 400 -d10s http://127.0.0.1:8000/api/v1/user/counter
+Running 10s test @ http://127.0.0.1:8000/api/v1/user/counter
+  4 threads and 400 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    58.08ms  140.53ms   1.05s    94.98%
+    Req/Sec     4.04k     1.95k    8.53k    66.00%
+  160779 requests in 10.04s, 31.89MB read
+  Socket errors: connect 0, read 1820, write 0, timeout 0
+Requests/sec:  16012.11
+Transfer/sec:      3.18MB
+```
+
+run test 4 threads 300 concurrency with echo server:
+```shell
+./wrk -t 4 -c 400 -d10s http://127.0.0.1:8000/api/v1/user/greeting
+Running 10s test @ http://127.0.0.1:8000/api/v1/user/greeting
+  4 threads and 400 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    33.45ms   77.33ms   1.01s    96.80%
+    Req/Sec     5.35k     2.66k   12.48k    66.75%
+  212805 requests in 10.05s, 43.43MB read
+  Socket errors: connect 0, read 2078, write 0, timeout 0
+Requests/sec:  21179.64
+Transfer/sec:      4.32MB
 ```
 
 # run

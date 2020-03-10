@@ -32,7 +32,7 @@ log_socket_port = 514
 REDIS_HOST = "redis"  # docker network
 REDIS_PORT = 6379
 REDIS_DB = 0
-REDIS_PASSWD = None
+REDIS_PASSWD = ''
 
 # postgres database config
 # --------------------------------------------------------------------

@@ -15,10 +15,23 @@ recommend way: define path params use Path, define query params use Query, defin
 from fastapi import APIRouter, Query
 
 from handlers.tools import GeneralJSONResponse
+from processers.redis.driver import RedisDriver
 from .models import User
 from .serialization import UserSerialization
 
 user_router = APIRouter()
+
+
+@user_router.get(path="/greeting")
+async def greeting():
+    return GeneralJSONResponse(code=1000, data="hi, welcome to fastapi boilerplate")
+
+
+@user_router.get(path="/counter")
+async def counter():
+    rc = RedisDriver()
+    await rc.set("a", 111)
+    return GeneralJSONResponse(code=1000, data="hi, write something to redis")
 
 
 @user_router.get(path="/list")
