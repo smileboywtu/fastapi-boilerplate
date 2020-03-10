@@ -10,6 +10,7 @@ init all the table inside postgres
 import asyncio
 
 import tortoise
+from tortoise import run_async
 
 from config import PG_DATABASE_URL
 from handlers.users import models as user_model
@@ -34,7 +35,7 @@ def init_postgres_other_model():
             print("enter Y/N?")
 
 
-def init_postgres_orm_model():
+async def init_postgres_orm_model():
     # init database
     await tortoise.Tortoise.init(db_url=PG_DATABASE_URL, modules={"models": [user_model.__name__]})
 
@@ -45,4 +46,4 @@ def init_postgres_orm_model():
 
 
 if __name__ == '__main__':
-    init_postgres_orm_model()
+    run_async(init_postgres_orm_model())

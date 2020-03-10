@@ -6,21 +6,25 @@ set -o nounset
 
 
 postgres_ready() {
-python << END
+python3 << END
 import sys
 
 import asyncpg
 import asyncio
 
 try:
-
-    await asyncpg.create_pool(
-            user=${POSTGRES_USER},
-            password=${POSTGRES_PASSWORD},
-            database=${POSTGRES_DB},
-            host=${POSTGERS_HOST},
+    async def check_connect():
+        await asyncpg.create_pool(
+            user="${POSTGRES_USER}",
+            password="${POSTGRES_PASSWORD}",
+            database="${POSTGRES_DB}",
+            host="${POSTGERS_HOST}",
             port=${POSTGERS_PORT})
-except Exception:
+
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(check_connect())
+except Exception as e:
+    print(str(e))
     sys.exit(-1)
 sys.exit(0)
 

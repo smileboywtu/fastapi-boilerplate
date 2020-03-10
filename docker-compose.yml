@@ -28,9 +28,6 @@ services:
       - production_postgres_data:/var/lib/postgresql/data
     env_file:
       - .envs/.production/.postgres
-    command:
-      - "--character-set-server=utf8mb4"
-      - "--collation-server=utf8mb4_unicode_ci"
 
   redis:
     restart: always

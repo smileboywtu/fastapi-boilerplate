@@ -4,6 +4,12 @@ ENV PYTHONUNBUFFERED 1
 
 WORKDIR /app
 
+RUN mkdir ~/.pip/ && echo -e \
+    "[global]\nindex-url = https://pypi.tuna.tsinghua.edu.cn/simple" > \
+    ~/.pip/pip.conf && \
+    sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' \
+    /etc/apk/repositories
+
 # install gcc
 RUN apk update \
   && apk add --virtual build-deps gcc python3-dev musl-dev alpine-sdk libuv

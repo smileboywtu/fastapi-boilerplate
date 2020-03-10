@@ -1,5 +1,6 @@
 -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 
+
 fastapi==0.52.0
 pydantic==1.4
 starlette==0.13.2
@@ -11,7 +12,7 @@ aioredis
 msgpack
 pytest
 ujson
-tortoise
+git+https://github.com/tortoise/tortoise-orm.git
 python-json-logger
 Celery==4.2.1
 flower==0.9.2
