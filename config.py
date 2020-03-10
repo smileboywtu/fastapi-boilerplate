@@ -41,5 +41,5 @@ PG_PORT = 5432
 PG_DATABASE = os.environ.get("POSTGRES_DB", "false")
 PG_PASSWD = os.environ.get("POSTGRES_PASSWORD", "")
 PG_USER = os.environ.get("POSTGRES_USER", "fast")
-PG_DATABASE_URL = "postgresql://{user}:{passwd}@{host}:{port}/{db}".format(user=PG_USER, passwd=PG_PASSWD, host=PG_HOST,
+PG_DATABASE_URL = "postgres://{user}:{passwd}@{host}:{port}/{db}".format(user=PG_USER, passwd=PG_PASSWD, host=PG_HOST,
                                                                            port=PG_PORT, db=PG_DATABASE)

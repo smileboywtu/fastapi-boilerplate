@@ -45,6 +45,22 @@ docker is a good way to distribute application on different os environment, it m
 
 we choose `wrk` as a load test tool. it very simple and fast. see more detail inside `benchmark.sh`.
 
+## with postgres sql
+
+run test 4 threads 300 concurrency:
+
+```shell
+./wrk -t 4 -c 300 -d10s http://127.0.0.1:8000/api/v1/user/list
+Running 10s test @ http://127.0.0.1:8000/api/v1/user/list
+  4 threads and 300 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    66.94ms   49.40ms 604.50ms   73.71%
+    Req/Sec     1.22k   252.57     1.87k    64.75%
+  48659 requests in 10.10s, 11.09MB read
+Requests/sec:   4819.52
+Transfer/sec:      1.10MB
+```
+
 # run
 
 we use make tool to manage other web server.

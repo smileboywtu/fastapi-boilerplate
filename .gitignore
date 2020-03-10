@@ -143,6 +143,6 @@ dmypy.json
 .envs/.production/.fastapi
 .envs/.production/.postgres
 
-.envs/.local/.fastapi
-.envs/.local/.postgres
+.envs/.docker-compose/.fastapi
+.envs/.docker-compose/.postgres
 

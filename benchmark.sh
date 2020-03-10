@@ -9,5 +9,6 @@
 # benchmark web server
 # test Get method without SQL
 # test Get method with SQL related
-./wrk -t 4 -c 500 -s 60s http://
+./wrk -t 4 -c 300 -d10s http://127.0.0.1:8000/api/v1/user/list
+
 

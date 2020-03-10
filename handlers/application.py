@@ -14,6 +14,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.requests import Request
 from pydantic import ValidationError
+from tortoise.contrib.starlette import register_tortoise
 
 import config
 from handlers.middlware import RequestIDMiddleware, AccessLogMiddleware
@@ -39,16 +40,16 @@ access_logger = config_socket_logger(access_logger_name, access_log_format, "INF
 def handle_general_exception(request: Request, exc: HTTPException):
     # HTTPException is an based on Exception
     # for general debug , or batter you can write this to log file
-    print(exc.detail)
+    # print(exc.detail)
     print(traceback.print_exc())
-    return GeneralJSONResponse(code=4000, data={}, detail=exc.detail)
+    return GeneralJSONResponse(code=4000, data={}, detail=str(exc))
 
 
 # handler params exception
 def handler_params_exception(request: Request, exc: HTTPException):
-    print(exc.detail)
+    # print(exc.detail)
     print(traceback.print_exc())
-    return GeneralJSONResponse(code=3000, data={}, detail=exc.detail)
+    return GeneralJSONResponse(code=3000, data={}, detail=str(exc))
 
 
 exception_handlers = {
@@ -68,6 +69,9 @@ app_instance = FastAPI(
     ],
     exception_handlers=exception_handlers
 )
+
+# init postgres connection
+register_tortoise(app=app_instance, db_url=config.PG_DATABASE_URL, modules={"models": ["handlers.users.models"]})
 
 # add middleware
 # middleware execute from top down, first add execute firstly

@@ -52,7 +52,7 @@ RUN chown -R fastapi /app
 
 USER fastapi
 
-EXPOSE 8000
+#EXPOSE 8000
 
 ENTRYPOINT ["/entrypoint"]
 

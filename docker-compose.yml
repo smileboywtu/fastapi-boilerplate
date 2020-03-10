@@ -17,7 +17,7 @@ services:
       - ./.envs/.production/.fastapi
       - ./.envs/.production/.postgres
     ports:
-      - "0.0.0.0:8000:80"
+      - "0.0.0.0:8000:8000"
     restart: always
     command: /start
 

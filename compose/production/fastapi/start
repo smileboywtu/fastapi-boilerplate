@@ -5,4 +5,4 @@ set -o pipefail
 set -o nounset
 
 
-gunicorn run:app_instance -w 8 -k uvicorn.workers.UvicornWorker
+gunicorn run:app_instance -b 0.0.0.0:8000 -w 8 -k uvicorn.workers.UvicornWorker  --max-requests 10000
