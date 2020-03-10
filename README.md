@@ -79,6 +79,14 @@ make run
 make stop
 ```
 
+# config
+
+you can write you business config inside `config.py` file, other environments config use by components you can write it into .envs.production directory, please look at the two sample config file:
+- sample.fastapi
+- sameple.postgres
+
+config and rename it without sample(.fastapi .postgres) and move it into .envs/.production directory.
+
 # sql write
 
 if you need to write your own sql function, you need to read the doc first, [anosql query options](https://anosql.readthedocs.io/en/latest/defining_queries.html#query-operations).
