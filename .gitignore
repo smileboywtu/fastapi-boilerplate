@@ -139,3 +139,9 @@ dmypy.json
 .vscode
 .idea
 
+.envs/.production/.fastapi
+.envs/.production/.postgres
+
+.envs/.local/.fastapi
+.envs/.local/.postgres
+
