@@ -25,7 +25,7 @@ msgpack==1.0.0
 packaging==20.3
 pluggy==0.13.1
 py==1.11.0
-pydantic==1.4
+pydantic==1.6.2
 pyparsing==2.4.6
 PyPika==0.35.21
 pytest==5.3.5
