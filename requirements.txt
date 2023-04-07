@@ -31,7 +31,7 @@ PyPika==0.35.21
 pytest==5.3.5
 python-json-logger==0.1.11
 pytz==2019.3
-redis==3.4.1
+redis==4.4.4
 six==1.14.0
 starlette==0.13.2
 tornado==6.0.4
