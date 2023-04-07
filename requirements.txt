@@ -5,7 +5,7 @@ aiosql==3.0.0
 aiosqlite==0.11.0
 amqp==2.5.2
 async-timeout==3.0.1
-asyncpg==0.20.1
+asyncpg==0.21.0
 attrs==19.3.0
 Babel==2.9.1
 billiard==3.6.3.0
