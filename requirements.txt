@@ -24,7 +24,7 @@ more-itertools==8.2.0
 msgpack==1.0.0
 packaging==20.3
 pluggy==0.13.1
-py==1.8.1
+py==1.11.0
 pydantic==1.4
 pyparsing==2.4.6
 PyPika==0.35.21
