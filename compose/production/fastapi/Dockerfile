@@ -18,7 +18,7 @@ RUN apk update \
 RUN addgroup -S fastapi \
     && adduser -S -G fastapi fastapi
 
-RUN copy requirements.txt /app/requirements.txt
+COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # add startup entrypoint

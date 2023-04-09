@@ -16,8 +16,11 @@ from fastapi import APIRouter, Query
 
 from handlers.tools import GeneralJSONResponse
 from processers.redis.driver import RedisDriver
+from processers.postgres.driver import PostgresDriver
 from .models import User
 from .serialization import UserSerialization
+from sqlalchemy.ext.asyncio import async_sessionmaker
+from sqlalchemy import select, func
 
 user_router = APIRouter()
 
@@ -37,19 +40,27 @@ async def counter():
 @user_router.get(path="/list")
 async def get_user_list(
         page_size: int = Query(10, title="page size", description="how many user in a page", gt=1),
-        page_number: int = Query(0, title="page number", description="current page of user list", ge=0)
+        page_number: int = Query(
+            0, title="page number", description="current page of user list", ge=0)
 ):
-    total = await User.all().count()
-    total_pages = total % page_size
-    if page_number >= total_pages:
-        page_number = total_pages
+    async_session = async_sessionmaker(
+        PostgresDriver.alchemy_engine, expire_on_commit=False)
+    async with async_session() as session:
+        stmt = select(func.count(User.id).label('cnt'))
+        result = await session.execute(stmt)
 
-    offset = (page_number - 1) * page_size if page_number > 0 else 0
-    limit = page_size
-    users = await User.all().offset(offset).limit(limit).values()
-    return GeneralJSONResponse(code=1000,
-                               data=dict(total_page=total_pages, page_size=page_size, page_number=page_number,
-                                         objects=users))
+        total = result.scalar_one()
+        total_pages = total % page_size
+        if page_number >= total_pages:
+            page_number = total_pages
+
+        offset = (page_number - 1) * page_size if page_number > 0 else 0
+        limit = page_size
+        users_ = await session.execute(select(*User.__table__.columns).offset(offset).limit(limit))
+        users = [u._asdict() for u in users_.all()]
+        return GeneralJSONResponse(code=1000,
+                                   data=dict(total_page=total_pages, page_size=page_size, page_number=page_number,
+                                             objects=users))
 
 
 @user_router.post(path="/new")
@@ -60,11 +71,20 @@ async def add_new_user(user: UserSerialization):
     :param user:
     :return:
     """
-    user_inst = await User.create(**user.dict())
-    return GeneralJSONResponse(code=1000, data=dict(id=user_inst.id, username=user_inst.username))
+    async_session = async_sessionmaker(
+        PostgresDriver.alchemy_engine, expire_on_commit=False)
+    async with async_session() as session:
+        user_inst = User(**user.dict())
+        session.add(user_inst)
+        await session.commit()
+        return GeneralJSONResponse(code=1000, data=dict(id=user_inst.id, username=user_inst.username))
 
 
 @user_router.get(path="/{user_id}")
 async def get_user_detail(user_id: int):
-    user = await User.filter(id=user_id).values(flat=True)
-    return GeneralJSONResponse(code=1000, data=user)
+    async_session = async_sessionmaker(
+        PostgresDriver.alchemy_engine, expire_on_commit=False)
+    async with async_session() as session:
+        user = await session.execute(select(*User.__table__.columns).filter(User.id == user_id))
+        users = [u._asdict() for u in user]
+        return GeneralJSONResponse(code=1000, data=users)

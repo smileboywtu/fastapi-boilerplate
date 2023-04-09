@@ -28,10 +28,14 @@ services:
       - production_postgres_data:/var/lib/postgresql/data
     env_file:
       - .envs/.production/.postgres
+    ports:
+      - 127.0.0.1:5431:5432
 
   redis:
+    image: redis:7.2-rc1-alpine
+    ports:
+      - 127.0.0.1:6379:6379
     restart: always
-    image: redis:3.2
 
   celeryworker:
     <<: *fastapi

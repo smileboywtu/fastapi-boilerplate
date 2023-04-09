@@ -29,17 +29,16 @@ log_socket_port = 514
 
 # redis config
 # --------------------------------------------------------------------
-REDIS_HOST = "redis"  # docker network
-REDIS_PORT = 6379
-REDIS_DB = 0
-REDIS_PASSWD = ''
+REDIS_HOST = os.environ.get("REDIS_HOST", "redis")  # docker network
+REDIS_PORT = os.environ.get("REDIS_PORT", 6379)
+REDIS_DB = os.environ.get("REDIS_DB", 0)
+REDIS_PASSWD = os.environ.get("REDIS_PASSWD", "")
 
 # postgres database config
 # --------------------------------------------------------------------
-PG_HOST = "postgres"  # notice use docker with service name
-PG_PORT = 5432
-PG_DATABASE = os.environ.get("POSTGRES_DB", "false")
+# notice use docker with service name
+PG_HOST = os.environ.get("POSTGERS_HOST", "postgres")
+PG_PORT = os.environ.get("POSTGERS_PORT", 5432)
+PG_DATABASE = os.environ.get("POSTGRES_DB", "fast")
 PG_PASSWD = os.environ.get("POSTGRES_PASSWORD", "")
-PG_USER = os.environ.get("POSTGRES_USER", "fast")
-PG_DATABASE_URL = "postgres://{user}:{passwd}@{host}:{port}/{db}".format(user=PG_USER, passwd=PG_PASSWD, host=PG_HOST,
-                                                                           port=PG_PORT, db=PG_DATABASE)
+PG_USER = os.environ.get("POSTGRES_USER", "fast_user")

@@ -7,19 +7,24 @@ user orm
 
 """
 
-from tortoise import fields
-from tortoise.models import Model
+from sqlalchemy import String
+from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
 
 
-class User(Model):
-    class Meta:
-        table = "users"
+class Base(DeclarativeBase):
+    pass
 
-    id = fields.IntField(pk=True)
-    username = fields.CharField(max_length=32, null=False, unique=True)
-    age = fields.SmallIntField()
-    address = fields.CharField(max_length=256, null=False)
-    mobile = fields.CharField(max_length=16)
 
-    def __str__(self):
+class User(Base):
+    __tablename__ = "users"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    username: Mapped[str] = mapped_column(String(30), comment='用户名')
+    age: Mapped[int] = mapped_column(comment='年龄')
+    address: Mapped[str] = mapped_column(String(30), comment='用户地址')
+    mobile: Mapped[str] = mapped_column(String(11), comment='手机号')
+
+    def __repr__(self) -> str:
         return self.username

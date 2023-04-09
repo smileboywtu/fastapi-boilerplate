@@ -6,15 +6,10 @@
 init all the table inside postgres
 
 """
-
 import asyncio
 
-import tortoise
-from tortoise import run_async
-
-from config import PG_DATABASE_URL
 from handlers.users import models as user_model
-from processers.postgres_process import init_postgres_schema
+from processers.postgres_process import init_postgres_schema, pg_client
 
 
 def init_postgres_other_model():
@@ -36,14 +31,13 @@ def init_postgres_other_model():
 
 
 async def init_postgres_orm_model():
-    # init database
-    await tortoise.Tortoise.init(db_url=PG_DATABASE_URL, modules={"models": [user_model.__name__]})
-
     # init db schema
-    await tortoise.Tortoise.generate_schemas()
+    async with pg_client.alchemy_engine.begin() as conn:
+        await conn.run_sync(user_model.Base.metadata.create_all)
 
     print("init orm done")
 
 
 if __name__ == '__main__':
-    run_async(init_postgres_orm_model())
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(init_postgres_orm_model())

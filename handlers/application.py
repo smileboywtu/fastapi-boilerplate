@@ -14,7 +14,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.requests import Request
 from pydantic import ValidationError
 from starlette.applications import Starlette
-from tortoise.contrib.starlette import register_tortoise
 
 import config
 from handlers.middlware import RequestIDMiddleware, AccessLogMiddleware
@@ -68,7 +67,6 @@ exception_handlers = {
 app_instance = FastAPI(exception_handlers=exception_handlers)
 
 # init postgres connection
-register_tortoise(app=app_instance, db_url=config.PG_DATABASE_URL, modules={"models": ["handlers.users.models"]})
 register_health(app=app_instance)
 register_postgres(app=app_instance, user=config.PG_USER, host=config.PG_HOST, port=config.PG_PORT,
                   db=config.PG_DATABASE, password=config.PG_PASSWD)
@@ -102,4 +100,5 @@ if config.enable_access_log:
     )
 
 # add user router
-app_instance.include_router(prefix="/api/v1/user", router=user_router, tags=["user"])
+app_instance.include_router(prefix="/api/v1/user",
+                            router=user_router, tags=["user"])

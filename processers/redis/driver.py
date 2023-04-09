@@ -9,9 +9,17 @@ redis driver
 
 from operator import attrgetter
 
-import aioredis
 import msgpack
 from starlette.applications import Starlette
+from redis import asyncio as aioredis
+
+from redis.backoff import ExponentialBackoff
+from redis.retry import Retry
+from redis.exceptions import (
+    BusyLoadingError,
+    ConnectionError,
+    TimeoutError
+)
 
 
 class MSGPackSerializer(object):
@@ -57,23 +65,28 @@ class RedisDriver(object):
     @classmethod
     async def destroy(cls):
         if cls.instance:
-            cls.instance.close()
-            await cls.instance.wait_closed()
+            await cls.instance.close()
         cls.instance = None
 
     @classmethod
-    async def create_new_instance(cls, host, port, db, passwd, maxsize=512, minsize=256, timeout=3):
+    async def create_new_instance(cls, host, port, db, passwd, maxsize=512, timeout=3):
         """
         create new redis connection pool
 
         :return:
         """
-        cls.instance = await aioredis.create_redis_pool(
-            address=[host, port],
+        retry = Retry(ExponentialBackoff(), retries=3)
+        cls.instance = await aioredis.Redis(
+            host=host, port=port,
             db=db,
             password=passwd,
-            minsize=minsize,
-            maxsize=maxsize,
+            socket_timeout=timeout,
+            socket_connect_timeout=1,
+            max_connections=maxsize,
+            retry=retry,
+            retry_on_error=[BusyLoadingError, ConnectionError, TimeoutError],
+            retry_on_timeout=True,
+            auto_close_connection_pool=True
         )
 
     def __getattr__(self, item):

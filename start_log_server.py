@@ -13,6 +13,10 @@ import socketserver
 import struct
 
 
+class ZMQLoggerServer(logging.handlers.QueueListener):
+    pass
+
+
 class LogRecordStreamHandler(socketserver.StreamRequestHandler):
     """Handler for a streaming logging request.
 

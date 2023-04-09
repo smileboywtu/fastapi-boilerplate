@@ -7,11 +7,13 @@ postgre SQL database process driver
 
 
 """
-import asyncio
 from operator import attrgetter
 
+import aiosql
 import asyncpg
+import asyncio
 from starlette.applications import Starlette
+from sqlalchemy.ext.asyncio import create_async_engine
 
 
 def register_postgres(
@@ -23,28 +25,19 @@ def register_postgres(
         password: str
 ) -> None:
     @app.on_event("startup")
-    async def init_redis() -> None:  # pylint: disable=W0612
+    async def init_postgres() -> None:  # pylint: disable=W0612
         await PostgresDriver.create_new_pg_instance(host, port, user, db, password)
 
     @app.on_event("shutdown")
-    async def close_redis() -> None:  # pylint: disable=W0612
-        await PostgresDriver.destroy()
+    async def close_postgres() -> None:  # pylint: disable=W0612
+        await PostgresDriver.destory()
 
 
 class PostgresDriver(object):
     __slots__ = ["conn", "sql_path", "query"]
 
     instance = None
-
-    # def __new__(cls, *args, **kwargs):
-    #     if not cls.instance:
-    #         loop = asyncio.get_event_loop()
-    #         cls.instance = loop.run_until_complete(
-    #             cls.create_new_pg_instance(host=kwargs.get("host"), port=kwargs.get("port", 5432),
-    #                                        user=kwargs.get("user", "postgres"), database=kwargs.get("database"),
-    #                                        password=kwargs.get("password")))
-    #     # make sure __init__ by invoked
-    #     return super(PostgresDriver, cls).__new__(cls)
+    alchemy_engine = None
 
     def __init__(self, *args, **kwargs):
         """
@@ -56,9 +49,14 @@ class PostgresDriver(object):
         :param args:
         :param kwargs:
         """
+        if not self.instance:
+            loop = asyncio.get_event_loop()
+            loop.run_until_complete(
+                PostgresDriver.create_new_pg_instance(**kwargs))
         self.conn = self.instance
         self.sql_path = kwargs.get("sql_path")
-        # self.query = aiosql.from_path(kwargs.get("sql_path"), "asyncpg", record_classes=kwargs.get("record_classes"))
+        self.query = aiosql.from_path(kwargs.get(
+            "sql_path"), "asyncpg", record_classes=kwargs.get("record_classes"))
 
     @classmethod
     async def destory(cls):
@@ -69,7 +67,10 @@ class PostgresDriver(object):
         """
         if cls.instance:
             await cls.instance.close()
+        if cls.alchemy_engine:
+            await cls.alchemy_engine.dispose()
         cls.instance = None
+        cls.alchemy_engine = None
 
     async def execute_sql(self, sql_name: str, *args, **kwargs):
         """
@@ -78,14 +79,17 @@ class PostgresDriver(object):
         :param sql_name:
         :return:
         """
-        with self.conn.acquire() as connection:
-            try:
-                return await attrgetter(self.query)(sql_name)(connection, *args, **kwargs)
-            except AttributeError:
-                raise AttributeError("sql not defined in aiosql, check the sql path: {0}".format(self.sql_path))
+        conn = await self.conn.acquire()
+        try:
+            return await attrgetter(sql_name)(self.query)(conn, *args, **kwargs)
+        except AttributeError:
+            raise AttributeError(
+                "sql not defined in aiosql, check the sql path: {0}".format(self.sql_path))
+        finally:
+            await self.conn.release(conn)
 
     @classmethod
-    async def create_new_pg_instance(cls, host, port, user, database, password):
+    async def create_new_pg_instance(cls, host, port, user, database, password, **kwages):
         """
         create new pg instance pool
 
@@ -99,3 +103,5 @@ class PostgresDriver(object):
             database=database,
             host=host,
             port=port)
+        cls.alchemy_engine = create_async_engine("postgresql+asyncpg://{user}:{passwd}@{host}:{port}/{db}".format(
+            host=host, port=port, user=user, passwd=password, db=database))
