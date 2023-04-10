@@ -13,6 +13,9 @@ services:
     build:
       context: .
       dockerfile: compose/production/fastapi/Dockerfile
+      args:
+        - UID=1000
+        - GID=1000
     image: app_production_fastapi
     logging: *default-logging
     depends_on:

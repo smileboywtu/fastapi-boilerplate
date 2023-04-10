@@ -1,13 +1,19 @@
-# Fastapi 开发模版
+# Fastapi WEB 开发模版
 
-Fastapi 使用了 Python 的异步接口特性，可以提升比较多的性能，另外 API 使用起来比较简洁直观，更加符合开发者的习惯。
+Fastapi 使用了 Python 的异步 IO 特性，可以提升比较多的性能，API 使用起来比较简洁直观，更加符合开发者的习惯。
 
 Fastapi 更多特性参考[文档](https://github.com/tiangolo/fastapi)。
 
 本模版在 Fastapi 的功能基础上集成了更多常用的功能，用户可以根据自己的需求进行删减，删减比增加可能更加容易一些。
 
+# 模版结构
+
+整个模版一共有 7 个组件：
+
+
 # 特性支持
 
+- 
 - fully async support: function, database, background task
 - celery distribute task support
 - distribute request id support

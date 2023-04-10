@@ -15,8 +15,11 @@ RUN apk update \
   && apk add --virtual build-deps gcc python3-dev musl-dev alpine-sdk libuv
 
 # create user
-RUN addgroup -S fastapi \
-    && adduser -S -G fastapi fastapi
+ARG UID
+ARG GID
+
+RUN addgroup -g $GID -S fastapi \
+    && adduser -G fastapi -u $UID -S -H fastapi
 
 COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
@@ -52,12 +55,8 @@ RUN chmod +x /start-logtcpserver
 
 COPY . /app
 
-RUN chown -R fastapi /app
+RUN chown -R fastapi:fastapi /app
 
 USER fastapi
 
-#EXPOSE 8000
-
 ENTRYPOINT ["/entrypoint"]
-
-#ENTRYPOINT [ "gunicorn", "run:app_instance", "-w", "8", "-k", "uvicorn.workers.UvicornWorker" ]
