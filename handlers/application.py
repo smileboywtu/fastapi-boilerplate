@@ -24,11 +24,10 @@ from tasks.health import check_redis, check_postgres
 from utils.logs import config_socket_logger, access_log_format
 from .users.handler import user_router
 
-# config logger
-access_logger_name = "fastapi.access"
-access_logger = config_socket_logger(access_logger_name, access_log_format, "INFO",
-                                     socket_host=config.log_socket_host,
-                                     socket_port=config.log_socket_port)
+# config socket logger
+config_socket_logger(config.access_socker_logger_name, access_log_format, "INFO",
+                     socket_host=config.log_socket_host,
+                     socket_port=config.log_socket_port)
 
 
 def register_health(
@@ -80,6 +79,14 @@ origins = [
     "http://localhost:8080",
 ]
 
+
+# make this before request id middleware because middleware is inverse order
+if config.enable_access_log:
+    app_instance.add_middleware(
+        AccessLogMiddleware,
+        log_name=config.access_socker_logger_name
+    )
+
 app_instance.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -87,17 +94,12 @@ app_instance.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
 app_instance.add_middleware(
     RequestIDMiddleware,
     mode="uuid"
 )
-
-# make this below request id middleware
-if config.enable_access_log:
-    app_instance.add_middleware(
-        AccessLogMiddleware,
-        log_name=access_logger_name
-    )
 
 # add user router
 app_instance.include_router(prefix="/api/v1/user",

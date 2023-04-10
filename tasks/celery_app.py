@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from celery import Celery
+from celery.schedules import crontab
 
 import config
 
@@ -28,6 +29,7 @@ celery_app.conf.update(
     result_serializer="json",
     timezone="Asia/Shanghai",
     enable_utc=True,
+    result_expires=3600
 )
 
 celery_app.autodiscover_tasks([
@@ -37,6 +39,6 @@ celery_app.autodiscover_tasks([
 celery_app.conf.beat_schedule = {
     "parse_log": {
         "task": "parse_log",
-        "schedule": 30
+        "schedule": crontab(minute="*/6")
     }
 }

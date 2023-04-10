@@ -46,6 +46,10 @@ COPY ./compose/production/fastapi/celery/flower/start /start-flower
 RUN sed -i 's/\r//' /start-flower
 RUN chmod +x /start-flower
 
+COPY ./compose/production/fastapi/log_tcp_server/start /start-logtcpserver
+RUN sed -i 's/\r//' /start-logtcpserver
+RUN chmod +x /start-logtcpserver
+
 COPY . /app
 
 RUN chown -R fastapi /app

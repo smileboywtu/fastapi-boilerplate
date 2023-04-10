@@ -29,7 +29,8 @@ log_format = "[%(name)s] %(asctime)s %(levelname)s %(request_id)s %(filename)s:%
 
 class CustomJsonFormatter(jsonlogger.JsonFormatter):
     def add_fields(self, log_record, record, message_dict):
-        super(CustomJsonFormatter, self).add_fields(log_record, record, message_dict)
+        super(CustomJsonFormatter, self).add_fields(
+            log_record, record, message_dict)
         if not log_record.get('timestamp'):
             now = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
             log_record['timestamp'] = now
@@ -59,10 +60,7 @@ def logger_config(name, path, level, log_format, rotate_interval, backup_count,
         encoding="utf-8") \
         if not debug else \
         logging.StreamHandler(sys.stdout)
-    if name == "datalog":
-        formatter = CustomJsonFormatter(log_format)
-    else:
-        formatter = logging.Formatter(log_format)
+    formatter = CustomJsonFormatter(log_format)
     handler.setFormatter(formatter)
     log_level = getattr(logging, level)
     logger.setLevel(log_level)
@@ -80,8 +78,7 @@ def config_socket_logger(logger_name, log_format, log_level, socket_host="127.0.
     """
     logger = logging.getLogger(logger_name)
     logger.setLevel(log_level)
-    handler = logging.handlers.SocketHandler(socket_host,
-                                             514 or logging.handlers.DEFAULT_TCP_LOGGING_PORT)
+    handler = logging.handlers.SocketHandler(
+        host=socket_host, port=socket_port)
     handler.setFormatter(log_format)
     logger.addHandler(handler)
-    return logger

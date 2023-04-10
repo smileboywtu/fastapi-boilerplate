@@ -139,6 +139,7 @@ dmypy.json
 .vscode
 .idea
 .DS_Store
+*.db
 
 .envs/.production/.fastapi
 .envs/.production/.postgres

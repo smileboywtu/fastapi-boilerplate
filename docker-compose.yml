@@ -1,18 +1,24 @@
 version: "3"
 
-volumes:
-  production_postgres_data: {}
-  production_postgres_data_backups: {}
+x-logging:
+  &default-logging
+  options:
+    max-size: "10m"
+    max-file: "5"
+  driver: json-file
 
 services:
-  fastapi: &fastapi
+  fastapi:
+    &fastapi
     build:
       context: .
       dockerfile: compose/production/fastapi/Dockerfile
     image: app_production_fastapi
+    logging: *default-logging
     depends_on:
       - postgres
       - redis
+      - logserver
     env_file:
       - ./.envs/.production/.fastapi
       - ./.envs/.production/.postgres
@@ -23,18 +29,22 @@ services:
 
   postgres:
     image: postgres:latest
-    restart: always
-    volumes:
-      - production_postgres_data:/var/lib/postgresql/data
     env_file:
       - .envs/.production/.postgres
+    volumes:
+      - ${POSTGRES_DATA_DIR}:/var/lib/postgresql/data
+    logging: *default-logging
     ports:
-      - 127.0.0.1:5431:5432
+      - "127.0.0.1:${POSTGERS_PORT}:${POSTGERS_PORT}"
+    restart: always
 
   redis:
     image: redis:7.2-rc1-alpine
+    env_file:
+      - ./.envs/.production/.fastapi
     ports:
-      - 127.0.0.1:6379:6379
+      - 127.0.0.1:${REDIS_PORT}:${REDIS_PORT}
+    logging: *default-logging
     restart: always
 
   celeryworker:
@@ -45,19 +55,37 @@ services:
       - postgres
     ports: []
     command: /start-celeryworker
+    restart: always
 
   celerybeat:
     <<: *fastapi
     image: app_production_celerybeat
+    volumes:
+      - ${CELERY_BEAT_DBFILE_DIR}:/beatdb/
+    ports: []
     depends_on:
       - redis
       - postgres
-    ports: []
     command: /start-celerybeat
+    restart: always
 
   flower:
     <<: *fastapi
     image: app_production_flower
     ports:
-      - "5555:5555"
+      - "127.0.0.1:5555:5555"
+    depends_on:
+      - redis
     command: /start-flower
+    restart: always
+
+  logserver:
+    <<: *fastapi
+    image: app_production_logserver
+    command: /start-logtcpserver
+    volumes:
+      - ${LOG_BASE_PATH}:/logs/
+    depends_on: []
+    ports:
+      - "127.0.0.1:${TCP_SERVER_LOG_PORT}:${TCP_SERVER_LOG_PORT}"
+    restart: always

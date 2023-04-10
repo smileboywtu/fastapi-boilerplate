@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from celery.task import task
+from .celery_app import celery_app
 
 
-@task(name="parse_log", ignore_result=True)
+@celery_app.task(name="parse_log", ignore_result=True)
 def parse_logs():
     print("parse_logs starting...")

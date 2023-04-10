@@ -4,7 +4,14 @@ set -o errexit
 set -o nounset
 
 
-celery flower \
-    --app=celery_app.celery_app \
-    --broker="redis://:${REDIS_PASSWD}@${REDIS_HOST}:${REDIS_PORT}/${REDIS_DB}" \
-    --basic_auth="${CELERY_FLOWER_USER}:${CELERY_FLOWER_PASSWORD}"
+# define redis url
+if [ -z "${REDIS_PASSWD}" ];
+then
+    REDIS_URL="redis://${REDIS_HOST}:${REDIS_PORT}/${REDIS_DB}"
+else
+    REDIS_URL="redis://:${REDIS_PASSWD}@${REDIS_HOST}:${REDIS_PORT}/${REDIS_DB}"
+fi
+
+celery --app=tasks.celery_app.celery_app \
+        --broker="${REDIS_URL}" \
+        flower --basic_auth="${CELERY_FLOWER_USER}:${CELERY_FLOWER_PASSWORD}"

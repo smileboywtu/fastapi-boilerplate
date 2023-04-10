@@ -5,4 +5,4 @@ set -o pipefail
 set -o nounset
 
 
-celery -A celery_app.celery_app beat -l INFO --max-interval 1
+celery -A tasks.celery_app.celery_app beat -l INFO --max-interval 3 --schedule /beatdb/celerybeat.db

@@ -67,6 +67,10 @@ async def get_user_list(
 async def add_new_user(user: UserSerialization):
     """
     create new user
+    
+    curl -X POST http://127.0.0.1:8000/api/v1/user/new \
+    -H 'Content-Type: application/json' \
+    -d '{"username":"smile26", "age":10, "mobile":"124", "address": "zj"}'
 
     :param user:
     :return:

@@ -5,16 +5,15 @@
 run socket log server
 
 """
-
+import os
 import logging
 import logging.handlers
 import pickle
 import socketserver
 import struct
 
-
-class ZMQLoggerServer(logging.handlers.QueueListener):
-    pass
+import config
+from utils.logs import logger_config, access_log_format
 
 
 class LogRecordStreamHandler(socketserver.StreamRequestHandler):
@@ -23,7 +22,6 @@ class LogRecordStreamHandler(socketserver.StreamRequestHandler):
     This basically logs the record using whatever logging policy is
     configured locally.
     """
-
     def handle(self):
         """
         Handle multiple requests - each expected to be a 4-byte length,
@@ -48,15 +46,12 @@ class LogRecordStreamHandler(socketserver.StreamRequestHandler):
     def handleLogRecord(self, record):
         # if a name is specified, we use the named logger rather than the one
         # implied by the record.
-        if self.server.logname is not None:
-            name = self.server.logname
-        else:
-            name = record.name
-        logger = logging.getLogger(name)
+        logger = logging.getLogger(config.access_logger_name)
         # N.B. EVERY record gets logged. This is because Logger.handle
         # is normally called AFTER logger-level filtering. If you want
         # to do filtering, do it at the client end to save wasting
         # cycles and network bandwidth!
+        # print(record.__dict__)
         logger.handle(record)
 
 
@@ -67,13 +62,10 @@ class LogRecordSocketReceiver(socketserver.ThreadingTCPServer):
 
     allow_reuse_address = True
 
-    def __init__(self, host='localhost',
-                 port=logging.handlers.DEFAULT_TCP_LOGGING_PORT,
-                 handler=LogRecordStreamHandler):
+    def __init__(self, host, port, handler):
         socketserver.ThreadingTCPServer.__init__(self, (host, port), handler)
         self.abort = 0
         self.timeout = 1
-        self.logname = None
 
     def serve_until_stopped(self):
         import select
@@ -87,10 +79,17 @@ class LogRecordSocketReceiver(socketserver.ThreadingTCPServer):
             abort = self.abort
 
 
-def main():
-    logging.basicConfig(
-        format='%(relativeCreated)5d %(name)-15s %(levelname)-8s %(message)s')
-    tcpserver = LogRecordSocketReceiver()
+def main(debug=False):
+    # config logger
+    logger_config(config.access_logger_name, config.access_log_path, 'INFO',
+                  log_format=access_log_format, rotate_interval=7, backup_count=3, debug=debug)
+
+    # get config
+    log_socket_host = "0.0.0.0"
+    log_socket_port = int(os.environ.get("TCP_SERVER_LOG_PORT", 7779))
+    tcpserver = LogRecordSocketReceiver(
+        host=log_socket_host, port=log_socket_port,
+        handler=LogRecordStreamHandler)
     print('About to start TCP server...')
     tcpserver.serve_until_stopped()
 

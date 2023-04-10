@@ -23,9 +23,9 @@ WEB_APP_PORT_NUMBER = 8000
 
 # log file path
 # --------------------------------------------------------------------
-enable_access_log = False
-log_socket_host = "127.0.0.1"
-log_socket_port = 514
+enable_access_log = True
+log_socket_host = os.environ.get("TCP_SERVER_LOG_HOST", "")
+log_socket_port = int(os.environ.get("TCP_SERVER_LOG_PORT", 7779))
 
 # redis config
 # --------------------------------------------------------------------
@@ -42,3 +42,10 @@ PG_PORT = os.environ.get("POSTGERS_PORT", 5432)
 PG_DATABASE = os.environ.get("POSTGRES_DB", "fast")
 PG_PASSWD = os.environ.get("POSTGRES_PASSWORD", "")
 PG_USER = os.environ.get("POSTGRES_USER", "fast_user")
+
+# config log
+# --------------------------------------------------------------------
+LOG_BASE_DIR = '/logs'
+access_log_path = os.path.join(LOG_BASE_DIR,'access.log')
+access_logger_name = "fastapi.access"
+access_socker_logger_name = "fastapi.access.socket"

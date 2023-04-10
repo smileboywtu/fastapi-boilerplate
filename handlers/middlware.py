@@ -66,7 +66,7 @@ class RequestIDContext(object):
         if self.mode == "uuid":
             return generate_request_id_by_uuid()
         else:
-            return ""
+            return None
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
@@ -81,8 +81,9 @@ class RequestIDMiddleware(BaseHTTPMiddleware):
     async def dispatch(
             self, request: Request, call_next: RequestResponseEndpoint
     ):
-        with RequestIDContext() as request_id:
-            request.request_id = request_id
+        with RequestIDContext(mode=self.mode) as request_id:
+            if request_id:
+                request.scope['x-request-id'] = request_id
             return await call_next(request)
 
 
@@ -96,18 +97,28 @@ class AccessLogMiddleware(BaseHTTPMiddleware):
             self, request: Request, call_next: RequestResponseEndpoint
     ):
         response = None
+        request_id = request.scope.get('x-request-id', None)
         with TimingStats("context") as stats:
             response = await call_next(request)
 
         # write log to
-        logger = logging.getLogger(self.log_name)
-        logger = logging.LoggerAdapter(logger, dict(
-            request_id=request.request_id,
-            time_cost=stats.time,
-            request_method=request.method,
-            request_path=request.base_url.path,
-            response_code=response.status_code
-        ))
-        logger.info("")
+        if request_id:
+            # set response
+            response.headers['x-request-id'] = request_id
+            # log
+            logger = logging.getLogger(self.log_name)
+            logger = logging.LoggerAdapter(logger, dict(
+                request_id=request_id,
+                time_cost=stats.time,
+                request_method=request.method,
+                request_path=request.url.path,
+                request_query=request.url.query,
+                request_host=request.url.hostname,
+                http_schema=request.url.scheme,
+                client_ip=request.client.host,
+                client_port=request.client.port,
+                response_code=response.status_code
+            ))
+            logger.info("")
 
         return response

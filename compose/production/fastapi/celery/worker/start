@@ -5,4 +5,4 @@ set -o pipefail
 set -o nounset
 
 
-celery --app celery_app.celery_app worker -c 10 -l INFO
+celery --app tasks.celery_app.celery_app worker -c 10 -l INFO

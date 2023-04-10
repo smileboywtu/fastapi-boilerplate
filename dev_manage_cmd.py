@@ -5,6 +5,7 @@ dev develop tools
 """
 
 
+import logging
 import typer
 
 from pathlib import Path
@@ -17,17 +18,33 @@ import config
 import asyncio
 import uvicorn
 from operator import attrgetter
-from handlers.application import app_instance
-from init_postgres_schema import init_postgres_orm_model
+
 
 app = typer.Typer()
 
 @app.command(help='开启测试web 服务器')
 def runserver():
+    from handlers.application import app_instance
     uvicorn.run("handlers.application:app_instance",reload=True)
+    
+@app.command(help='开启 celery app 任务处理服务')
+def runceleryworker():
+    from tasks.celery_app import celery_app
+    celery_app.start(argv=['worker'])
 
+@app.command(help='开启 celery app 定时任务处理服务')
+def runcelerybeat():
+    from tasks.celery_app import celery_app
+    celery_app.start(argv=['beat'])
+
+@app.command(help='开启 TCP 日志收集服务器')
+def runtcplogserver():
+    from start_log_server import main
+    main(debug=True)
+    
 @app.command(help='初始化 ORM')
 def initorm(name:str=None):
+    from init_postgres_schema import init_postgres_orm_model
     loop = asyncio.get_event_loop()
     loop.run_until_complete(init_postgres_orm_model())
     
@@ -80,7 +97,17 @@ def sqlalchemy():
             
     loop = asyncio.get_event_loop()
     loop.run_until_complete(_query())
-    
+
+@app.command(help='syslog tcp server test')
+def tcplogs():
+    from utils.logs import config_socket_logger,log_format
+    config_socket_logger(logger_name='fastapi.test',log_format=log_format,
+                         log_level='INFO',socket_host="127.0.0.1",
+                         socket_port=config.log_socket_port)
+    logger = logging.getLogger('fastapi.test')
+    for i in range(10):
+        print(i)
+        logger.info(i)
 
 if __name__ == '__main__':
     app()

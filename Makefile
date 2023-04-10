@@ -6,13 +6,13 @@ help:
 	@echo "  rebuild       rebuilds the image from scratch without using any cached layers"
 
 build:
-	sudo docker-compose -f docker-compose.yml build
+	sudo eval $(cat .envs/.production/.fastapi .envs/.production/.postgres) docker-compose -f docker-compose.yml build
 
 up:
-	sudo docker-compose -f docker-compose.yml up
+	sudo eval $(cat .envs/.production/.fastapi .envs/.production/.postgres) docker-compose -f docker-compose.yml up
 
 down:
-	sudo docker-compose -f docker-compose.yml stop
+	sudo eval $(cat .envs/.production/.fastapi .envs/.production/.postgres) docker-compose -f docker-compose.yml stop
 
 rebuild:
-	sudo docker-compose -f docker-compose.yml build --no-cache
+	sudo eval $(cat .envs/.production/.fastapi .envs/.production/.postgres) docker-compose -f docker-compose.yml build --no-cache
