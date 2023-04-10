@@ -151,6 +151,8 @@ make down
 本地开发时，可以使用 docker-compose 命令将本地的 postgres/redis 等数据库启动起来，剩下的 web 服务或者定时任务可以通过开发命令的方式来启动调试，具体的方法是：
 
 ```shell
+conda create -n fastapi
+pip install -r requirements.txt
 python dev_manage_cmd.py --help
 ```
 ![](./assets/img/img-2023-04-10-20-32-52.png)
