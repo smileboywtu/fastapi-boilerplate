@@ -4,7 +4,7 @@ redis[hiredis]
 asyncpg==0.27.0
 celery==5.2.7
 importlib-metadata<5.0
-fastapi==0.95.0
+fastapi==0.109.1
 flower==1.2.0
 gunicorn==20.1.0
 msgpack==1.0.0
